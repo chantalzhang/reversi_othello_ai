@@ -9,7 +9,7 @@ from helpers import random_move, count_capture, execute_move, check_endgame, get
 
 # python simulator.py --player_1 random_agent --player_2 random_agent
 
-@register_agent("test_agent")
+@register_agent("chantal_test_agent")
 class TestAgent(Agent):
     """
     A class for your implementation. Feel free to use this class to
