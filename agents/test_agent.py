@@ -7,16 +7,16 @@ from copy import deepcopy
 import time
 from helpers import random_move, count_capture, execute_move, check_endgame, get_valid_moves
 
-@register_agent("student_agent")
-class StudentAgent(Agent):
+@register_agent("test_agent")
+class TestAgent(Agent):
     """
     A class for your implementation. Feel free to use this class to
     add any helper functionalities needed for your agent.
     """
 
     def __init__(self):
-        super(StudentAgent, self).__init__()
-        self.name = "StudentAgent"
+        super(TestAgent, self).__init__()
+        self.name = "TestAgent"
     
     def evaluate_board(self, chess_board, player, opponent):
         """
@@ -39,14 +39,9 @@ class StudentAgent(Agent):
         # Initialize score
         score = 0
 
-        # Disk difference
-        player_disks = np.sum(chess_board == player)
-        opponent_disks = np.sum(chess_board == opponent)
-        disk_diff = player_disks - opponent_disks
-
         # Corners
         corners = [(0,0), (0, chess_board.shape[0]-1), 
-                   (chess_board.shape[0]-1,0), (chess_board.shape[0]-1, chess_board.shape[0]-1)]
+                (chess_board.shape[0]-1,0), (chess_board.shape[0]-1, chess_board.shape[0]-1)]
         player_corners = 0
         opponent_corners = 0
         for corner in corners:
@@ -55,6 +50,54 @@ class StudentAgent(Agent):
             elif chess_board[corner[0], corner[1]] == opponent:
                 opponent_corners += 1
         corner_diff = player_corners - opponent_corners
+
+        # Edges
+        player_edges = 0
+        opponent_edges = 0
+        edge_positions = []
+
+        N = chess_board.shape[0]  # Board size
+
+        # Top and Bottom edges (excluding corners)
+        for i in range(1, N - 1):
+            edge_positions.append((0, i))       # Top edge
+            edge_positions.append((N - 1, i))   # Bottom edge
+
+        # Left and Right edges (excluding corners)
+        for i in range(1, N - 1):
+            edge_positions.append((i, 0))       # Left edge
+            edge_positions.append((i, N - 1))   # Right edge
+
+        for pos in edge_positions:
+            if chess_board[pos[0], pos[1]] == player:
+                player_edges += 1
+            elif chess_board[pos[0], pos[1]] == opponent:
+                opponent_edges += 1
+
+        edge_diff = player_edges - opponent_edges
+
+        # Inner tiles bordering the edge (tiles adjacent to edges but not on the edge)
+        player_inner_border = 0
+        opponent_inner_border = 0
+        inner_border_positions = []
+
+        # Top and Bottom inner borders
+        for i in range(1, N - 1):
+            inner_border_positions.append((1, i))         # Just below top edge
+            inner_border_positions.append((N - 2, i))     # Just above bottom edge
+
+        # Left and Right inner borders
+        for i in range(1, N - 1):
+            inner_border_positions.append((i, 1))         # Right next to left edge
+            inner_border_positions.append((i, N - 2))     # Left next to right edge
+
+        for pos in inner_border_positions:
+            if chess_board[pos[0], pos[1]] == player:
+                player_inner_border += 1
+            elif chess_board[pos[0], pos[1]] == opponent:
+                opponent_inner_border += 1
+
+        inner_border_diff = player_inner_border - opponent_inner_border
 
         # Mobility
         player_moves = len(get_valid_moves(chess_board, player))
@@ -65,9 +108,10 @@ class StudentAgent(Agent):
             mobility = 0
 
         # Weighting the features
-        score = (1000 * corner_diff) + (10 * mobility) + disk_diff
+        score = (1000 * corner_diff) + (50 * edge_diff) - (30 * inner_border_diff) + (10 * mobility)
 
         return score
+
       
     def minimax(self, chess_board, depth, maximizing_player, player, opponent, alpha, beta, start_time):
         """
@@ -164,7 +208,7 @@ class StudentAgent(Agent):
             The position (row, column) where the AI wants to place the next disc.
         """
         start_time = time.time()
-        time_limit = 1.8  # Time limit in seconds
+        time_limit = 1.9  # Time limit in seconds
         depth = 3  # Initial search depth
         best_move = None
 
