@@ -21,6 +21,7 @@ def get_args():
         default=6,
         help="In autoplay mode, the minimum board size",
     )
+    
     parser.add_argument(
         "--board_size_max",
         type=int,
@@ -159,3 +160,5 @@ if __name__ == "__main__":
         simulator.autoplay()
     else:
         simulator.run()
+
+
