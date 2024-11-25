@@ -50,7 +50,7 @@ class TestAgent(Agent):
             elif chess_board[corner[0], corner[1]] == opponent:
                 opponent_corners += 1
         corner_diff = player_corners - opponent_corners
-
+        
         # Edges
         player_edges = 0
         opponent_edges = 0
