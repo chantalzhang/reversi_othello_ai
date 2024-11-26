@@ -5,10 +5,10 @@ from tqdm import tqdm  # For progress bar
 def run_game():
     # Run the play script with specific agents
     result = subprocess.run([
-        'python', 'play.py',
-        '--player1', 'minimax',
+        'python', '',
+        '--player1', 'minimax_with_gpt_greedy_corners',
         '--player2', 'gpt_greedy_corners',
-        '--display', 'false',
+        '--display', 'false',./
         '--verbose', 'true'  # Add verbose flag to show moves
     ], capture_output=True, text=True)
     
