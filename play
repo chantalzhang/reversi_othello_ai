@@ -1,7 +1,7 @@
 #!/bin/bash
 
-python3 simulator.py --player_1 random_agent --player_2 chantal_test_agent
+python3 simulator.py --player_1 gpt_greedy_corners_agent --player_2 minimax_with_gpt_greedy_corners
 
 if[ $1 == "gpt" ]; then
-    python3 simulator.py --player_1 gpt_greedy_corners_agent --player_2 chantal_test_agent
+    python3 simulator.py --player_1 gpt_greedy_corners_agent --player_2 minimax_with_gpt_greedy_corners
 fi

@@ -39,11 +39,6 @@ class StudentAgent(Agent):
         # Initialize score
         score = 0
 
-        # Disk difference
-        player_disks = np.sum(chess_board == player)
-        opponent_disks = np.sum(chess_board == opponent)
-        disk_diff = player_disks - opponent_disks
-
         # Corners
         corners = [(0,0), (0, chess_board.shape[0]-1), 
                    (chess_board.shape[0]-1,0), (chess_board.shape[0]-1, chess_board.shape[0]-1)]
