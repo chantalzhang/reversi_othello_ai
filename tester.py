@@ -5,7 +5,7 @@ from tqdm import tqdm  # For progress bar
 def run_game():
     # Run the play script with specific agents
     result = subprocess.run([
-        'python', '',
+        './play',
         '--player1', 'minimax_with_gpt_greedy_corners',
         '--player2', 'gpt_greedy_corners',
         '--display', 'false',./
