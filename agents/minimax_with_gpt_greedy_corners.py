@@ -48,7 +48,7 @@ class StudentAgent(Agent):
             """
             # Time limit check
             if time.time() - start_time > 1.8:
-                return self.evaluate_board(chess_board, player, opponent), None
+                raise TimeoutError
 
             # Endgame or depth limit check
             is_endgame, p1_score, p2_score = check_endgame(chess_board, player, opponent)
@@ -114,50 +114,38 @@ class StudentAgent(Agent):
         """
         start_time = time.time()
         time_limit = 1.9  # Time limit in seconds
-        depth = 3  # Initial search depth
+        depth = 1  # Start from depth 1 (changed from 3)
         best_move = None
 
-        # Iterative deepening to adjust depth dynamically
-        while True:
-            time_taken = time.time() - start_time
-            if time_taken > time_limit:
-                break
-            eval_score, move = self.minimax(chess_board, depth, True, player, opponent, float('-inf'), float('inf'), start_time)
-            if move is not None:
-                best_move = move
-            depth += 1  # Increase depth for next iteration
-
-        time_taken = time.time() - start_time
-        print("My AI's turn took ", time_taken, "seconds.")
-        print("Last depth searched: ", depth)   
+        try:
+            while True:
+                eval_score, move = self.minimax(chess_board, depth, True, player, opponent, float('-inf'), float('inf'), start_time)
+                if move is not None:
+                    best_move = move
+                depth += 1
+        except TimeoutError:
+            pass  # Stop when time limit is reached
 
         if best_move is None:
-            # If no best move found, play a random valid move
             return random_move(chess_board, player)
 
         return best_move
 
-
-def evaluate_board(self, board, color, player_score, opponent_score):
+    def evaluate_board(self, board, player, opponent):  # Fixed method to be inside class with correct parameters
         """
         Evaluate the board state based on multiple factors.
-
-        Parameters:
-        - board: 2D numpy array representing the game board.
-        - color: Integer representing the agent's color (1 for Player 1/Blue, 2 for Player 2/Brown).
-        - player_score: Score of the current player.
-        - opponent_score: Score of the opponent.
-
-        Returns:
-        - int: The evaluated score of the board.
         """
+        # Count pieces
+        player_score = np.sum(board == player)
+        opponent_score = np.sum(board == opponent)
+
         # Corner positions are highly valuable
         corners = [(0, 0), (0, board.shape[1] - 1), (board.shape[0] - 1, 0), (board.shape[0] - 1, board.shape[1] - 1)]
-        corner_score = sum(1 for corner in corners if board[corner] == color) * 10
-        corner_penalty = sum(1 for corner in corners if board[corner] == 3 - color) * -10
+        corner_score = sum(1 for corner in corners if board[corner] == player) * 10
+        corner_penalty = sum(1 for corner in corners if board[corner] == opponent) * -10
 
         # Mobility: the number of moves the opponent can make
-        opponent_moves = len(get_valid_moves(board, 3 - color))
+        opponent_moves = len(get_valid_moves(board, opponent))
         mobility_score = -opponent_moves
 
         # Combine scores

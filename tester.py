@@ -6,13 +6,20 @@ def run_game():
     # Run the play script with specific agents
     result = subprocess.run([
         'python', 'play.py',
-        '--player1', 'minimax_with_gpt_greedy_corners',
+        '--player1', 'minimax',
         '--player2', 'gpt_greedy_corners',
-        '--display', 'false'  # Don't show the game visualization
+        '--display', 'false',
+        '--verbose', 'true'  # Add verbose flag to show moves
     ], capture_output=True, text=True)
     
     # Parse the output to determine winner
     output = result.stdout
+    
+    # Print all moves from the output
+    for line in output.split('\n'):
+        if "Player 1 plays at" in line or "Player 2 plays at" in line:
+            print(line.strip())
+            
     if "Player 1 (Blue) wins!" in output:
         return True  # minimax won
     elif "Player 2 (Brown) wins!" in output:
