@@ -179,7 +179,7 @@ class StudentAgent(Agent):
             depth += 1  # Increase depth for next iteration
 
         time_taken = time.time() - start_time
-        print("My AI's turn took ", time_taken, "seconds.")
+        print("My AI's turn took ", time_taken, "seconds.", "My AI searched at", depth, "depth")
 
         if best_move is None:
             # If no best move found, play a random valid move
