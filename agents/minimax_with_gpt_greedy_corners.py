@@ -109,29 +109,22 @@ class minimax_with_gpt_greedy_corners(Agent):
         """
         start_time = time.time()
         time_limit = 1.9  # Time limit in seconds
-        depth = 3  # Initial search depth
+        depth = 1  # Start from depth 1 (changed from 3)
         best_move = None
 
-        # Iterative deepening to adjust depth dynamically
-        while True:
-            time_taken = time.time() - start_time
-            if time_taken > time_limit:
-                break
-            eval_score, move = self.minimax(chess_board, depth, True, player, opponent, float('-inf'), float('inf'), start_time)
-            if move is not None:
-                best_move = move
-            depth += 1  # Increase depth for next iteration
-
-        time_taken = time.time() - start_time
-        print("My AI's turn took ", time_taken, "seconds.")
-        print("Last depth searched: ", depth)   
+        try:
+            while True:
+                eval_score, move = self.minimax(chess_board, depth, True, player, opponent, float('-inf'), float('inf'), start_time)
+                if move is not None:
+                    best_move = move
+                depth += 1
+        except TimeoutError:
+            pass  # Stop when time limit is reached
 
         if best_move is None:
-            # If no best move found, play a random valid move
             return random_move(chess_board, player)
 
         return best_move
-
 
     def evaluate_board(self, board, color, opponent):
             """
