@@ -6,16 +6,12 @@ from copy import deepcopy
 import time
 from helpers import random_move, count_capture, execute_move, check_endgame, get_valid_moves
 
-@register_agent("student_agent")
-class StudentAgent(Agent):
+@register_agent("minimax_with_gpt_greedy_corners")
+class minimax_with_gpt_greedy_corners(Agent):
     """
     A class for your implementation. Feel free to use this class to
     add any helper functionalities needed for your agent.
     """
-
-    def __init__(self):
-        super(StudentAgent, self).__init__()
-        self.name = "StudentAgent"
     
 
     def minimax(self, chess_board, depth, maximizing_player, player, opponent, alpha, beta, start_time):
@@ -47,9 +43,8 @@ class StudentAgent(Agent):
                 (score, move) where score is the evaluated score and move is the best move found.
             """
             # Time limit check
-            if time.time() - start_time > 1.8:
+            if time.time() - start_time > 1.9:
                 return self.evaluate_board(chess_board, player, opponent), None
-
             # Endgame or depth limit check
             is_endgame, p1_score, p2_score = check_endgame(chess_board, player, opponent)
             if depth == 0 or is_endgame:
@@ -138,28 +133,28 @@ class StudentAgent(Agent):
         return best_move
 
 
-def evaluate_board(self, board, color, player_score, opponent_score):
-        """
-        Evaluate the board state based on multiple factors.
+    def evaluate_board(self, board, color, opponent):
+            """
+            Evaluate the board state based on multiple factors.
 
-        Parameters:
-        - board: 2D numpy array representing the game board.
-        - color: Integer representing the agent's color (1 for Player 1/Blue, 2 for Player 2/Brown).
-        - player_score: Score of the current player.
-        - opponent_score: Score of the opponent.
+            Parameters:
+            - board: 2D numpy array representing the game board.
+            - color: Integer representing the agent's color (1 for Player 1/Blue, 2 for Player 2/Brown).
+            - player_score: Score of the current player.
+            - opponent_score: Score of the opponent.
 
-        Returns:
-        - int: The evaluated score of the board.
-        """
-        # Corner positions are highly valuable
-        corners = [(0, 0), (0, board.shape[1] - 1), (board.shape[0] - 1, 0), (board.shape[0] - 1, board.shape[1] - 1)]
-        corner_score = sum(1 for corner in corners if board[corner] == color) * 10
-        corner_penalty = sum(1 for corner in corners if board[corner] == 3 - color) * -10
+            Returns:
+            - int: The evaluated score of the board.
+            """
+            # Corner positions are highly valuable
+            corners = [(0, 0), (0, board.shape[1] - 1), (board.shape[0] - 1, 0), (board.shape[0] - 1, board.shape[1] - 1)]
+            corner_score = sum(1 for corner in corners if board[corner] == color) * 10
+            corner_penalty = sum(1 for corner in corners if board[corner] == 3 - color) * -10
 
-        # Mobility: the number of moves the opponent can make
-        opponent_moves = len(get_valid_moves(board, 3 - color))
-        mobility_score = -opponent_moves
+            # Mobility: the number of moves the opponent can make
+            opponent_moves = len(get_valid_moves(board, 3 - color))
+            mobility_score = -opponent_moves
 
-        # Combine scores
-        total_score = player_score - opponent_score + corner_score + corner_penalty + mobility_score
-        return total_score
+            # Combine scores
+            total_score = corner_score + corner_penalty + mobility_score
+            return total_score
