@@ -49,7 +49,6 @@ def main():
     print(f"Draw rate: {(draws/num_games)*100:.2f}%")
     print(f"Loss rate: {(num_games - wins - draws)/num_games*100:.2f}%")
     print(f"Total non-defeat rate: {(wins + draws)/num_games*100:.2f}%")
-    print(f"Draw rate: {(draws/num_games)*100:.2f}%")
 
 
 if __name__ == "__main__":
