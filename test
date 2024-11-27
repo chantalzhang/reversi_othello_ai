@@ -1,6 +1,5 @@
 #!/bin/bash
 
-# Function to validate and map player selection
 get_agent_name() {
     local selection=$1
     case $selection in
@@ -22,7 +21,6 @@ get_agent_name() {
     esac
 }
 
-# Print available options
 echo "Available agents:"
 echo "- minimax"
 echo "- minimax_ab"
@@ -30,28 +28,31 @@ echo "- random"
 echo "- gpt"
 echo ""
 
-# Get Player 1 selection
+# Player 1 selection
 while true; do
     read -p "Player 1: " player1
     agent1=$(get_agent_name "$player1")
     if [ "$agent1" != "invalid" ]; then
         break
     else
-        echo "Invalid selection. Please choose from the available options."
+        echo "No pick on the list"
     fi
 done
 
-# Get Player 2 selection
+# Player 2 selection
 while true; do
     read -p "Player 2: " player2
     agent2=$(get_agent_name "$player2")
     if [ "$agent2" != "invalid" ]; then
         break
     else
-        echo "Invalid selection. Please choose from the available options."
+        echo "No pick one on the list"
     fi
 done
 
-# Run the game with selected agents
-echo "Starting game: $agent1 vs $agent2"
-python3 simulator.py --player_1 "$agent1" --player_2 "$agent2"
+# Number of games
+read -p "Enter the number of games to run: " games
+
+# Run autoplay
+echo "Running $games games: $agent1 vs $agent2"
+python3 simulator.py --player_1 "$agent1" --player_2 "$agent2" --autoplay --autoplay_runs "$games"
