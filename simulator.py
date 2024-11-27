@@ -94,19 +94,24 @@ class Simulator:
 
     def autoplay(self):
         """
-        Run multiple simulations of the gameplay and aggregate win %
+        Run multiple simulations of the gameplay and aggregate win %, pure win count, and pure draw count.
         """
         p1_win_count = 0
         p2_win_count = 0
+        p1_pure_wins = 0  #added
+        p2_pure_wins = 0  #added
+        pure_draw_count = 0
         p1_times = []
         p2_times = []
+        
         if self.args.display:
             logger.warning("Since running autoplay mode, display will be disabled")
         self.args.display = False
+
         with all_logging_disabled():
             for i in range(self.args.autoplay_runs):
                 swap_players = i % 2 == 0
-                board_size = self.valid_board_sizes[ np.random.randint(len(self.valid_board_sizes)) ] 
+                board_size = self.valid_board_sizes[np.random.randint(len(self.valid_board_sizes))]
                 p0_score, p1_score, p0_time, p1_time = self.run(
                     swap_players=swap_players, board_size=board_size
                 )
@@ -119,39 +124,98 @@ class Simulator:
                     )
                 if p0_score > p1_score:
                     p1_win_count += 1
+                    p1_pure_wins += 1  
                 elif p0_score < p1_score:
                     p2_win_count += 1
+                    p2_pure_wins += 1  
                 else:  # Tie
                     p1_win_count += 0.5
                     p2_win_count += 0.5
+                    pure_draw_count += 1  
                 p1_times.extend(p0_time)
                 p2_times.extend(p1_time)
 
+        # calculate pure win rate, pure draw rate and non-defeat rate 
+        pure_win_rate = p1_pure_wins / self.args.autoplay_runs
+        pure_draw_rate = pure_draw_count / self.args.autoplay_runs
+        non_defeat_rate = (p1_pure_wins + pure_draw_count) / self.args.autoplay_runs
+
         logger.info(
-            f"Player 1, agent {self.args.player_1}, win percentage: {p1_win_count / self.args.autoplay_runs}. Maximum turn time was {np.round(np.max(p1_times),5)} seconds."
+            f"Player 1, agent {self.args.player_1}, win percentage: {p1_win_count / self.args.autoplay_runs}. Maximum turn time was {np.round(np.max(p1_times), 5)} seconds."
         )
         logger.info(
-            f"Player 2, agent {self.args.player_2}, win percentage: {p2_win_count / self.args.autoplay_runs}. Maximum turn time was {np.round(np.max(p2_times),5)} seconds."
+            f"Player 2, agent {self.args.player_2}, win percentage: {p2_win_count / self.args.autoplay_runs}. Maximum turn time was {np.round(np.max(p2_times), 5)} seconds."
         )
 
-        """
-        The code in this comment will be part of the book-keeping that we use to score the end-of-term tournament. FYI. 
-        Uncomment and use it if you find this book-keeping helpful.
-        fname = (
-            "tournament_results/"
-            + self.world.player_1_name
-            + "_vs_"
-            + self.world.player_2_name
-            + "_at_"
-            + datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
-            + ".csv"
+        # Added pure win count, pure draw count, pure win rate, pure draw rate and pure non-defeat rate to autoplay output for results discussion 
+        logger.info(
+            f"Pure win count: {p1_pure_wins}, Pure draw count: {pure_draw_count}"
         )
-        with open(fname, "w") as fo:
-            fo.write(f"P1Name,P2Name,NumRuns,P1WinPercent,P2WinPercent,P1RunTime,P2RunTime\n")
-            fo.write(
-                f"{self.world.player_1_name},{self.world.player_2_name},{self.args.autoplay_runs},{p1_win_count / self.args.autoplay_runs},{p2_win_count / self.args.autoplay_runs},{np.round(np.max(p1_times),5)},{np.round(np.max(p2_times),5)}\n"
-            )
-        """
+        logger.info(
+            f"Pure win rate: {pure_win_rate:.2f}, Pure draw rate: {pure_draw_rate:.2f}, Non-defeat rate: {non_defeat_rate:.2f}"
+        )
+
+####### OG AUTOPLAY FUNCTION WITH ONLY ONE LINE OF OUTPUT ############
+    # def autoplay(self):
+    #     """
+    #     Run multiple simulations of the gameplay and aggregate win %
+    #     """
+    #     p1_win_count = 0
+    #     p2_win_count = 0
+    #     p1_times = []
+    #     p2_times = []
+    #     if self.args.display:
+    #         logger.warning("Since running autoplay mode, display will be disabled")
+    #     self.args.display = False
+    #     with all_logging_disabled():
+    #         for i in range(self.args.autoplay_runs):
+    #             swap_players = i % 2 == 0
+    #             board_size = self.valid_board_sizes[ np.random.randint(len(self.valid_board_sizes)) ] 
+    #             p0_score, p1_score, p0_time, p1_time = self.run(
+    #                 swap_players=swap_players, board_size=board_size
+    #             )
+    #             if swap_players:
+    #                 p0_score, p1_score, p0_time, p1_time = (
+    #                     p1_score,
+    #                     p0_score,
+    #                     p1_time,
+    #                     p0_time,
+    #                 )
+    #             if p0_score > p1_score:
+    #                 p1_win_count += 1
+    #             elif p0_score < p1_score:
+    #                 p2_win_count += 1
+    #             else:  # Tie
+    #                 p1_win_count += 0.5
+    #                 p2_win_count += 0.5
+    #             p1_times.extend(p0_time)
+    #             p2_times.extend(p1_time)
+
+    #     logger.info(
+    #         f"Player 1, agent {self.args.player_1}, win percentage: {p1_win_count / self.args.autoplay_runs}. Maximum turn time was {np.round(np.max(p1_times),5)} seconds."
+    #     )
+    #     logger.info(
+    #         f"Player 2, agent {self.args.player_2}, win percentage: {p2_win_count / self.args.autoplay_runs}. Maximum turn time was {np.round(np.max(p2_times),5)} seconds."
+    #     )
+
+    #     """
+    #     The code in this comment will be part of the book-keeping that we use to score the end-of-term tournament. FYI. 
+    #     Uncomment and use it if you find this book-keeping helpful.
+    #     fname = (
+    #         "tournament_results/"
+    #         + self.world.player_1_name
+    #         + "_vs_"
+    #         + self.world.player_2_name
+    #         + "_at_"
+    #         + datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
+    #         + ".csv"
+    #     )
+    #     with open(fname, "w") as fo:
+    #         fo.write(f"P1Name,P2Name,NumRuns,P1WinPercent,P2WinPercent,P1RunTime,P2RunTime\n")
+    #         fo.write(
+    #             f"{self.world.player_1_name},{self.world.player_2_name},{self.args.autoplay_runs},{p1_win_count / self.args.autoplay_runs},{p2_win_count / self.args.autoplay_runs},{np.round(np.max(p1_times),5)},{np.round(np.max(p2_times),5)}\n"
+    #         )
+    #     """
 
 if __name__ == "__main__":
     args = get_args()
