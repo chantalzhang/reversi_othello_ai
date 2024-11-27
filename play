@@ -1,6 +1,6 @@
 #!/bin/bash
 
-python3 simulator.py --player_1 MiniMaxAgent --player_2 gpt_greedy_corners_agent
+python3 simulator.py --player_1 student_agent --player_2 test_agent
 
 if[ $1 == "gpt" ]; then
     python3 simulator.py --player_1 gpt_greedy_corners_agent --player_2 minimax_with_gpt_greedy_corners
