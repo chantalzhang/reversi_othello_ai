@@ -6,8 +6,8 @@ from copy import deepcopy
 import time
 from helpers import random_move, count_capture, execute_move, check_endgame, get_valid_moves
 
-@register_agent("minimax_with_gpt_greedy_corners")
-class minimax_with_gpt_greedy_corners(Agent):
+@register_agent("Minimax_with_gpt_greedy_corners")
+class Minimax_with_gpt_greedy_corners(Agent):
     """
     A class for your implementation. Feel free to use this class to
     add any helper functionalities needed for your agent.

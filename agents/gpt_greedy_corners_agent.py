@@ -85,6 +85,6 @@ class StudentAgent(Agent):
         # Combine scores
         total_score = player_score - opponent_score + corner_score + corner_penalty + mobility_score
         return total_score
-    
+
 # Ensure to test with:
 # python simulator.py --player_1 student_agent --player_2 random_agent --display
