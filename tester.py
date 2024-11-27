@@ -1,6 +1,5 @@
 import subprocess
 import sys
-from tqdm import tqdm  # For progress bar
 
 def run_game():
     # Run the play script with specific agents
@@ -8,7 +7,7 @@ def run_game():
         './play',
         '--player1', 'minimax_with_gpt_greedy_corners',
         '--player2', 'gpt_greedy_corners',
-        '--display', 'false',./
+        '--display', 'false',
         '--verbose', 'true'  # Add verbose flag to show moves
     ], capture_output=True, text=True)
     
@@ -35,8 +34,8 @@ def main():
     print("Running games: Minimax_GPT_Greedy_Corners vs GPT_Greedy_Corners")
     print("-" * 60)
     
-    # Run games with progress bar
-    for game_num in tqdm(range(1, num_games + 1)):
+    # Run games without progress bar
+    for game_num in range(1, num_games + 1):
         result = run_game()
         if result is True:
             wins += 1
@@ -60,3 +59,5 @@ def main():
 
 if __name__ == "__main__":
     main() 
+
+
