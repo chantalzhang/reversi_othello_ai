@@ -15,6 +15,9 @@ get_agent_name() {
         "gpt")
             echo "gpt_greedy_corners_agent"
             ;;
+        "student")
+            echo "student_agent"
+            ;;
         *)
             echo "invalid"
             ;;
@@ -26,6 +29,7 @@ echo "- minimax"
 echo "- minimax_ab"
 echo "- random"
 echo "- gpt"
+echo "- student"
 echo ""
 
 # Player 1 selection
