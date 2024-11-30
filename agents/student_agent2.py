@@ -1,4 +1,3 @@
-# Student agent: Improved agent with requested changes
 from agents.agent import Agent
 from store import register_agent
 import sys
@@ -7,7 +6,7 @@ import random
 import time
 from helpers import random_move, count_capture, execute_move, check_endgame, get_valid_moves
 
-@register_agent("student_agent")
+@register_agent("student_agent2")
 class StudentAgent(Agent):
     """
     An improved Othello agent implementing minimax with alpha-beta pruning,
@@ -15,7 +14,7 @@ class StudentAgent(Agent):
     """
 
     def __init__(self):
-        super(StudentAgent, self).__init__()
+        super().__init__()
         self.name = "StudentAgent"
         self.transposition_table = {}  # For caching board evaluations
 
@@ -169,7 +168,7 @@ class StudentAgent(Agent):
 
     def evaluate_board(self, board, color, opponent):
         """
-        Evaluate the board state based on multiple heuristics.
+        Evaluate the board state based on positional weights.
         Positive scores favor the maximizing player.
         """
         score = 0
@@ -178,7 +177,7 @@ class StudentAgent(Agent):
         empty_squares = np.count_nonzero(board == 0)
         empty_percentage = empty_squares / total_squares
 
-        # Game phase detection
+        # Game phase detection (optional)
         if empty_percentage > 0.7:
             game_phase = 'early'
         elif empty_percentage > 0.3:
@@ -186,191 +185,67 @@ class StudentAgent(Agent):
         else:
             game_phase = 'late'
 
-        size_factor = 8 / board_size
-        weights = {
-            'corner': 100 * size_factor,
-            'n2_corner': 50 * size_factor,
-            'adjacent_corner': -20 * size_factor,
-            'mobility': 10 * size_factor,
-            'potential_mobility': 1 * size_factor,
-            'disc_difference': {
-                'early': -5 * size_factor,
-                'mid': 0,
-                'late': 5 * size_factor
-            },
-            'edge_stability': 10 * size_factor,
-            'parity': 5 * size_factor,
-            'stability': 15 * size_factor
-        }
+        # Create a positional weight matrix
+        positional_weights = self.create_positional_weights(board_size)
 
-        # -------- Corners Heuristic --------
-        corners = [
-            (0, 0), (0, board_size - 1),
-            (board_size - 1, 0), (board_size - 1, board_size - 1)
-        ]
-        corner_score = sum(
-            weights['corner'] if board[pos] == color else -weights['corner'] if board[pos] == opponent else 0
-            for pos in corners
-        )
-        score += corner_score
+        # Calculate the positional score
+        positional_score = 0
+        for x in range(board_size):
+            for y in range(board_size):
+                if board[x, y] == color:
+                    positional_score += positional_weights[x, y]
+                elif board[x, y] == opponent:
+                    positional_score -= positional_weights[x, y]
 
-        # -------- n-2 Corners Heuristic (Inner Corners) --------
-        n2_corners = [
-            (0, 2), (0, board_size - 3),
-            (2, 0), (board_size - 3, 0),
-            (board_size - 1, 2), (board_size - 1, board_size - 3),
-            (2, board_size - 1), (board_size - 3, board_size - 1)
-        ]
-        n2_corner_score = sum(
-            weights['n2_corner'] if board[pos] == color else -weights['n2_corner'] if board[pos] == opponent else 0
-            for pos in n2_corners if 0 <= pos[0] < board_size and 0 <= pos[1] < board_size
-        )
-        score += n2_corner_score
+        score += positional_score
 
-        # -------- Adjacent to Corners Heuristic (X-squares and C-squares) --------
-        x_squares = [
-            (1, 1),
-            (1, board_size - 2),
-            (board_size - 2, 1),
-            (board_size - 2, board_size - 2)
-        ]
-        c_squares = [
-            (0, 1), (1, 0),
-            (0, board_size - 2), (1, board_size - 1),
-            (board_size - 1, 1), (board_size - 2, 0),
-            (board_size - 2, board_size - 1), (board_size - 1, board_size - 2)
-        ]
-        adjacent_positions = x_squares + c_squares
-        adjacent_corner_score = sum(
-            weights['adjacent_corner'] if board[pos] == color else -weights['adjacent_corner'] if board[pos] == opponent else 0
-            for pos in adjacent_positions if 0 <= pos[0] < board_size and 0 <= pos[1] < board_size
-        )
-        score += adjacent_corner_score
-
-        # -------- Edge Stability Heuristic --------
-        edge_stability_score = self.edge_stability(board, color) - self.edge_stability(board, opponent)
-        score += edge_stability_score * weights['edge_stability']
+        # Optionally, include other heuristics if desired
+        # For example, you can keep the mobility heuristic
+        # Uncomment the following code to include mobility
 
         # -------- Mobility Heuristic --------
-        player_moves = len(get_valid_moves(board, color))
-        opponent_moves = len(get_valid_moves(board, opponent))
-        if player_moves + opponent_moves != 0:
-            mobility_score = weights['mobility'] * (player_moves - opponent_moves) / (player_moves + opponent_moves)
-            score += mobility_score
-
-        # -------- Potential Mobility Heuristic --------
-        potential_mobility_score = self.calculate_potential_mobility(board, color, opponent)
-        score += weights['potential_mobility'] * potential_mobility_score
-
-        # -------- Disc Difference Heuristic --------
-        player_discs = np.count_nonzero(board == color)
-        opponent_discs = np.count_nonzero(board == opponent)
-        disc_difference = player_discs - opponent_discs
-        disc_diff_weight = weights['disc_difference'][game_phase]
-        disc_difference_score = disc_diff_weight * disc_difference
-        score += disc_difference_score
-
-        # -------- Parity Heuristic --------
-        parity_score = self.parity(board) * weights['parity']
-        score += parity_score
-
-        # -------- Stability Heuristic --------
-        stable_disc_count = self.stable_discs(board, color) - self.stable_discs(board, opponent)
-        score += stable_disc_count * weights['stability']
+        # weights = {'mobility': 100 * (8 / board_size)}
+        # player_moves = len(get_valid_moves(board, color))
+        # opponent_moves = len(get_valid_moves(board, opponent))
+        # if player_moves + opponent_moves != 0:
+        #     mobility_score = weights['mobility'] * (player_moves - opponent_moves) / (player_moves + opponent_moves)
+        #     score += mobility_score
 
         return score
 
-    def edge_stability(self, board, color):
+    def create_positional_weights(self, board_size):
         """
-        Calculate the number of stable discs along the edges.
+        Create a positional weight matrix with higher weights for corners and edges,
+        and decreasing weights towards the center.
         """
-        board_size = board.shape[0]
-        stability = 0
-        # Check all four edges
-        for i in range(board_size):
-            # Top edge
-            if board[0, i] == color:
-                stability += 1
-            # Bottom edge
-            if board[board_size - 1, i] == color:
-                stability += 1
-            # Left edge
-            if board[i, 0] == color:
-                stability += 1
-            # Right edge
-            if board[i, board_size - 1] == color:
-                stability += 1
-        return stability
+        weights = np.zeros((board_size, board_size))
+        max_weight = 100  # Maximum weight for corners
+        min_weight = 10   # Minimum weight for center positions
 
-    def parity(self, board):
-        """
-        Parity heuristic to favor having the last move.
-        """
-        empty_squares = np.count_nonzero(board == 0)
-        return 1 if empty_squares % 2 == 1 else -1
+        # Calculate the maximum distance from the edge (for normalization)
+        max_distance = board_size // 2
 
-    def calculate_potential_mobility(self, board, color, opponent):
-        """
-        Calculate potential mobility for the player.
-        """
-        board_size = board.shape[0]
-        directions = [(-1, -1), (-1, 0), (-1, 1),
-                      (0, -1),         (0, 1),
-                      (1, -1),  (1, 0),  (1, 1)]
-        potential_mobility = 0
         for x in range(board_size):
             for y in range(board_size):
-                if board[x, y] == 0:
-                    for dx, dy in directions:
-                        nx, ny = x + dx, y + dy
-                        if 0 <= nx < board_size and 0 <= ny < board_size:
-                            if board[nx, ny] == opponent:
-                                potential_mobility += 1
-                                break
-        # Subtract opponent's potential mobility
-        opponent_potential_mobility = 0
-        for x in range(board_size):
-            for y in range(board_size):
-                if board[x, y] == 0:
-                    for dx, dy in directions:
-                        nx, ny = x + dx, y + dy
-                        if 0 <= nx < board_size and 0 <= ny < board_size:
-                            if board[nx, ny] == color:
-                                opponent_potential_mobility += 1
-                                break
-        return potential_mobility - opponent_potential_mobility
+                # Calculate the minimum distance to the edge
+                distance_to_edge = min(x, y, board_size - 1 - x, board_size - 1 - y)
 
-    def stable_discs(self, board, color):
-        """
-        Count the number of stable discs for a given color.
-        """
-        board_size = board.shape[0]
-        stable = np.zeros_like(board, dtype=bool)
-        # Check corners for stable discs
-        corners = [(0, 0), (0, board_size - 1),
-                   (board_size - 1, 0), (board_size - 1, board_size - 1)]
-        for corner in corners:
-            if board[corner] == color:
-                self.mark_stable_discs(board, stable, corner, color)
-        return np.count_nonzero(stable)
+                # Assign weights based on distance to edge
+                if distance_to_edge == 0:
+                    # Corner
+                    weights[x, y] = max_weight
+                elif distance_to_edge % 2 == 0:
+                    # n-2, n-4, etc.
+                    weight = max_weight - (distance_to_edge * 20)
+                    weights[x, y] = weight
+                else:
+                    # Positions adjacent to corners or edges
+                    weight = max_weight - (distance_to_edge * 30)
+                    weights[x, y] = weight
 
-    def mark_stable_discs(self, board, stable, position, color):
-        """
-        Recursively mark stable discs from a corner.
-        """
-        x, y = position
-        board_size = board.shape[0]
-        if not (0 <= x < board_size and 0 <= y < board_size):
-            return
-        if stable[x, y]:
-            return
-        if board[x, y] != color:
-            return
-        stable[x, y] = True
-        # Check all adjacent positions
-        directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
-        for dx, dy in directions:
-            nx, ny = x + dx, y + dy
-            if 0 <= nx < board_size and 0 <= ny < board_size:
-                if board[nx, ny] == color:
-                    self.mark_stable_discs(board, stable, (nx, ny), color)
+                # Ensure weights are not below the minimum
+                weights[x, y] = max(weights[x, y], min_weight)
+
+        return weights
+
+    # ... [Include any other helper methods if needed] ...

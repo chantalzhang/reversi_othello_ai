@@ -6,3 +6,4 @@ from .minimax_ab import Minimax_with_alpha_beta_pruning
 from .chantal_test_agent import TestAgent
 from .minimax import MiniMax
 from .test_agent import TestAgent
+from .student_agent2 import StudentAgent
