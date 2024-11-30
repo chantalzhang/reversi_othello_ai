@@ -1,0 +1,25 @@
+#!/bin/bash
+
+# Parameters for the script
+PLAYER_1="student_agent"
+PLAYER_2="MiniMaxAgent"
+MIN_BOARD_SIZE=6
+MAX_BOARD_SIZE=12
+AUTOPLAY_RUNS=1
+
+# Loop through valid board sizes
+for ((BOARD_SIZE=MIN_BOARD_SIZE; BOARD_SIZE<=MAX_BOARD_SIZE; BOARD_SIZE+=1)); do
+    echo "Testing on board size: $BOARD_SIZE"
+    
+    # Run the simulator for the current board size
+    python3 simulator.py \
+        --player_1 "$PLAYER_1" \
+        --player_2 "$PLAYER_2" \
+        --board_size "$BOARD_SIZE" \
+        --autoplay \
+        --autoplay_runs "1"
+
+    echo "Completed testing for board size: $BOARD_SIZE"
+done
+
+echo "All tests completed."
