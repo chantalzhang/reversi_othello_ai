@@ -1,31 +1,129 @@
 #!/bin/bash
 
-# Parameters for the script
-PLAYER_1="student_agent"
-PLAYER_2="Minimax_with_alpha_beta_pruning"
-MIN_BOARD_SIZE=6
-MAX_BOARD_SIZE=12
-AUTOPLAY_RUNS=1
+get_agent_name() {
+    local selection=$1
+    case $selection in
+        "minimax")
+            echo "MiniMaxAgent"
+            ;;
+        "minimax_ab")
+            echo "Minimax_with_alpha_beta_pruning"
+            ;;
+        "random")
+            echo "random_agent"
+            ;;
+        "gpt")
+            echo "gpt_greedy_corners_agent"
+            ;;
+        "student")
+            echo "student_agent"
+            ;;
+        "human")
+            echo "human_agent"
+            ;;
+        "chantal")
+            echo "chantal_test_agent"
+            ;;
+        *)
+            echo "invalid"
+            ;;
+    esac
+}
 
-# Loop through valid board sizes
-for ((BOARD_SIZE=MIN_BOARD_SIZE; BOARD_SIZE<=MAX_BOARD_SIZE; BOARD_SIZE+=2)); do
+echo "Available agents:"
+echo "- minimax"
+echo "- minimax_ab"
+echo "- random"
+echo "- gpt"
+echo "- student"
+echo "- human"
+echo "- chantal"
+echo ""
+
+# Player 1 selection
+while true; do
+    read -p "Player 1: " player1
+    PLAYER_1=$(get_agent_name "$player1")
+    if [ "$PLAYER_1" != "invalid" ]; then
+        break
+    else
+        echo "No pick on the list"
+    fi
+done
+
+# Player 2 selection
+while true; do
+    read -p "Player 2: " player2
+    PLAYER_2=$(get_agent_name "$player2")
+    if [ "$PLAYER_2" != "invalid" ]; then
+        break
+    else
+        echo "No pick on the list"
+    fi
+done
+
+# Board size selection
+while true; do
+    read -p "Enter board size (6, 8, 10, 12, or 'all' for all sizes): " BOARD_SIZE_INPUT
+    if [[ "$BOARD_SIZE_INPUT" =~ ^(6|8|10|12|all)$ ]]; then
+        break
+    else
+        echo "Invalid input. Please enter 6, 8, 10, 12, or 'all'."
+    fi
+done
+
+# Check if either player is human and add display flag if so
+if [ "$PLAYER_1" = "human_agent" ] || [ "$PLAYER_2" = "human_agent" ]; then
+    DISPLAY_FLAG="--display"
+else
+    DISPLAY_FLAG=""
+fi
+
+if [ "$BOARD_SIZE_INPUT" = "all" ]; then
+    # Play all board sizes
+    for BOARD_SIZE in 6 8 10 12; do
+        echo "Testing on board size: $BOARD_SIZE"
+        
+        python3 simulator.py \
+            --player_1 "$PLAYER_1" \
+            --player_2 "$PLAYER_2" \
+            --board_size "$BOARD_SIZE" \
+            --autoplay \
+            --autoplay_runs "1" \
+            $DISPLAY_FLAG
+
+        python3 simulator.py \
+            --player_2 "$PLAYER_1" \
+            --player_1 "$PLAYER_2" \
+            --board_size "$BOARD_SIZE" \
+            --autoplay \
+            --autoplay_runs "1" \
+            $DISPLAY_FLAG
+
+        echo "Completed testing for board size: $BOARD_SIZE"
+    done
+else
+    # Play single board size
+    BOARD_SIZE=$BOARD_SIZE_INPUT
     echo "Testing on board size: $BOARD_SIZE"
     
-    # Run the simulator for the current board size
     python3 simulator.py \
         --player_1 "$PLAYER_1" \
         --player_2 "$PLAYER_2" \
         --board_size "$BOARD_SIZE" \
         --autoplay \
-        --autoplay_runs "1"
+        --autoplay_runs "1" \
+        $DISPLAY_FLAG
+
     python3 simulator.py \
         --player_2 "$PLAYER_1" \
         --player_1 "$PLAYER_2" \
         --board_size "$BOARD_SIZE" \
         --autoplay \
-        --autoplay_runs "1"
+        --autoplay_runs "1" \
+        $DISPLAY_FLAG
 
     echo "Completed testing for board size: $BOARD_SIZE"
-done
+fi
 
 echo "All tests completed."
