@@ -18,6 +18,12 @@ get_agent_name() {
         "student")
             echo "student_agent"
             ;;
+        "chantal")
+            echo "chantal_test_agent"
+            ;;
+        "actual")
+            echo "actual_student"
+            ;;
         *)
             echo "invalid"
             ;;
@@ -30,6 +36,8 @@ echo "- minimax_ab"
 echo "- random"
 echo "- gpt"
 echo "- student"
+echo "- chantal"
+echo "- actual"
 echo ""
 
 # Player 1 selection
