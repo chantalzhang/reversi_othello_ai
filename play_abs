@@ -27,6 +27,9 @@ get_agent_name() {
         "actual")
             echo "actual_student"
             ;;
+        "student2")
+            echo "student_agent_2"
+            ;;
         *)
             echo "invalid"
             ;;
@@ -39,6 +42,7 @@ echo "- minimax_ab"
 echo "- random"
 echo "- gpt"
 echo "- student"
+echo "- student2"
 echo "- human"
 echo "- chantal"
 echo "- actual"
