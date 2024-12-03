@@ -28,7 +28,7 @@ class StudentAgent(Agent):
 
         # Adjust time limit based on board size
         base_time_limit = 1.9
-        time_limit = base_time_limit + (board_size - 8) * 0.1  # Adjust as needed
+        time_limit = base_time_limit 
 
         depth = 1
         best_move = None
@@ -50,12 +50,12 @@ class StudentAgent(Agent):
                 if move is not None:
                     best_move = move
                 # Check time taken for current depth
-                depth_time_taken = time.time() - depth_start_time
-                # Estimate if there's enough time for the next depth
-                estimated_next_depth_time = depth_time_taken * 2  # Assuming time doubles each depth
-                if elapsed_time + estimated_next_depth_time >= time_limit:
-                    break
-                depth += 1
+                # depth_time_taken = time.time() - depth_start_time
+                # # Estimate if there's enough time for the next depth
+                # estimated_next_depth_time = depth_time_taken * 2  # Assuming time doubles each depth
+                # if elapsed_time + estimated_next_depth_time >= time_limit:
+                #     break
+                # depth += 1
         except TimeoutError:
             pass  # Time limit reached; exit search
 
@@ -156,6 +156,7 @@ class StudentAgent(Agent):
             # Use a simplified evaluation function for speed
             score = self.quick_evaluate(new_board, player, opponent)
             move_scores.append((score, move))
+
         # Sort moves: descending if maximizing, ascending if minimizing
         move_scores.sort(reverse=maximizing_player)
         ordered_moves = [move for _, move in move_scores]

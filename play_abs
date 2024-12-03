@@ -2,7 +2,7 @@
 
 # Parameters for the script
 PLAYER_1="student_agent"
-PLAYER_2="Minimax_with_alpha_beta_pruning"
+PLAYER_2="student_agent2"
 MIN_BOARD_SIZE=6
 MAX_BOARD_SIZE=12
 AUTOPLAY_RUNS=1
@@ -17,14 +17,13 @@ for ((BOARD_SIZE=MIN_BOARD_SIZE; BOARD_SIZE<=MAX_BOARD_SIZE; BOARD_SIZE+=2)); do
         --player_2 "$PLAYER_2" \
         --board_size "$BOARD_SIZE" \
         --autoplay \
-        --autoplay_runs "1"
+        --autoplay_runs 1
     python3 simulator.py \
         --player_2 "$PLAYER_1" \
         --player_1 "$PLAYER_2" \
         --board_size "$BOARD_SIZE" \
         --autoplay \
-        --autoplay_runs "1"
-
+        --autoplay_runs 1
     echo "Completed testing for board size: $BOARD_SIZE"
 done
 
