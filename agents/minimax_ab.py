@@ -87,6 +87,7 @@ class Minimax_with_alpha_beta_pruning(Agent):
 
         if best_move is None:
             return random_move(chess_board, player)
+        print(depth-1)
 
         return best_move
 

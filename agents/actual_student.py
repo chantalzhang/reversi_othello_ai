@@ -29,7 +29,7 @@ class ActualStudentAgent(Agent):
         """
         start_time = time.time() 
         board_size = chess_board.shape[0]
-        max_time = 1.99  # given the time constraint of 2 seconds , account for computation overhead
+        max_time = 1.93  # given the time constraint of 2 seconds , account for computation overhead
         depth = 1 
         best_move = None
 
@@ -80,82 +80,83 @@ class ActualStudentAgent(Agent):
 
         return best_move
 
-    def minimax(self, chess_board, depth, maximizing_player, player, opponent, alpha, beta, start_time, time_limit):
+    def minimax(self, chess_board, depth, is_maximizing_player, player, opponent, alpha, beta, start_time, time_limit):
         """
         Minimax algorithm with alpha-beta pruning and move ordering.
         """
-        # check time limit before starting search 
+        # Check time limit before starting search
         self.check_time_limit(start_time, time_limit)
 
-        # transposition table lookup for computational efficiency 
-        board_key = (tuple(chess_board.flatten()), depth, maximizing_player)
+        # Transposition table lookup for computational efficiency
+        board_key = (tuple(chess_board.flatten()), depth, is_maximizing_player)
         if board_key in self.transposition_table:
             return self.transposition_table[board_key]
 
-        # check if endgame or depth limit reached as it decrements 
+        # Check if node is a leaf node (endgame)
         is_endgame, _, _ = check_endgame(chess_board, player, opponent)
-        if depth == 0 or is_endgame:
+        if is_endgame:
             score = self.evaluate_board(chess_board, player, opponent)
-            # store in transposition table
+            # Store in transposition table
             self.transposition_table[board_key] = (score, None)
             return score, None
 
-        if maximizing_player:
-            max_eval = float('-inf')
+        if is_maximizing_player:
+            best_val = float('-inf')
             best_move = None
             valid_moves = get_valid_moves(chess_board, player)
             if not valid_moves:
                 # Pass move
-                eval_score, _ = self.minimax(chess_board, depth - 1, False, player, opponent,
-                                             alpha, beta, start_time, time_limit)
-                # store in transposition table
+                eval_score, _ = self.minimax(chess_board, depth + 1, False, player, opponent,
+                                            alpha, beta, start_time, time_limit)
+                # Store in transposition table
                 self.transposition_table[board_key] = (eval_score, None)
                 return eval_score, None
-            # move ordering
+            # Move ordering
             valid_moves = self.order_moves(chess_board, valid_moves, player, opponent, True)
             for move in valid_moves:
-                self.check_time_limit(start_time, time_limit) #check time limit within loop 
+                self.check_time_limit(start_time, time_limit)  # Check time limit within loop
                 new_board = np.copy(chess_board)
                 execute_move(new_board, move, player)
-                eval_score, _ = self.minimax(new_board, depth - 1, False, player, opponent,
-                                             alpha, beta, start_time, time_limit)
-                if eval_score > max_eval:
-                    max_eval = eval_score
+                eval_score, _ = self.minimax(new_board, depth + 1, False, player, opponent,
+                                            alpha, beta, start_time, time_limit)
+                if eval_score > best_val:
+                    best_val = eval_score
                     best_move = move
-                alpha = max(alpha, eval_score)
+                alpha = max(alpha, best_val)
                 if beta <= alpha:
-                    break  # beta cutoff for pruning
-            # store in transposition table
-            self.transposition_table[board_key] = (max_eval, best_move)
-            return max_eval, best_move
+                    break  # Beta cutoff for pruning
+            # Store in transposition table
+            self.transposition_table[board_key] = (best_val, best_move)
+            return best_val, best_move
         else:
-            min_eval = float('inf')
+            best_val = float('inf')
             best_move = None
             valid_moves = get_valid_moves(chess_board, opponent)
             if not valid_moves:
                 # Pass move
-                eval_score, _ = self.minimax(chess_board, depth - 1, True, player, opponent,
-                                             alpha, beta, start_time, time_limit)
-                # store in transposition table
+                eval_score, _ = self.minimax(chess_board, depth + 1, True, player, opponent,
+                                            alpha, beta, start_time, time_limit)
+                # Store in transposition table
                 self.transposition_table[board_key] = (eval_score, None)
                 return eval_score, None
-            # move ordering
+            # Move ordering
             valid_moves = self.order_moves(chess_board, valid_moves, opponent, player, False)
             for move in valid_moves:
-                self.check_time_limit(start_time, time_limit) #check time limit within loop 
+                self.check_time_limit(start_time, time_limit)  # Check time limit within loop
                 new_board = np.copy(chess_board)
                 execute_move(new_board, move, opponent)
-                eval_score, _ = self.minimax(new_board, depth - 1, True, player, opponent,
-                                             alpha, beta, start_time, time_limit)
-                if eval_score < min_eval:
-                    min_eval = eval_score
+                eval_score, _ = self.minimax(new_board, depth + 1, True, player, opponent,
+                                            alpha, beta, start_time, time_limit)
+                if eval_score < best_val:
+                    best_val = eval_score
                     best_move = move
-                beta = min(beta, eval_score)
+                beta = min(beta, best_val)
                 if beta <= alpha:
-                    break  # alpha cutoff for pruning
-            # store in transposition table
-            self.transposition_table[board_key] = (min_eval, best_move)
-            return min_eval, best_move
+                    break  # Alpha cutoff for pruning
+            # Store in transposition table
+            self.transposition_table[board_key] = (best_val, best_move)
+            return best_val, best_move
+
 
     def order_moves(self, board, moves, player, opponent, maximizing_player):
         """
@@ -198,21 +199,21 @@ class ActualStudentAgent(Agent):
         else:
             game_phase = 'late'
 
-        size_factor = 8 / board_size
+   
         weights = {
-            'corner': 100 * size_factor,
-            'n2_corner': 50 * size_factor,
-            'adjacent_corner': -20 * size_factor,
-            'mobility': 10 * size_factor,
-            'potential_mobility': 1 * size_factor,
+            'corner': 1000,
+            'n2_corner': 50,
+            'adjacent_corner': -20,
+            'mobility': 10,
+            'potential_mobility': 1,
             'disc_difference': {
-                'early': -5 * size_factor,
-                'mid': 0,
-                'late': 5 * size_factor
+                'early': 0,
+                'mid': 4,
+                'late': 8
             },
-            'edge_stability': 10 * size_factor,
-            'parity': 5 * size_factor,
-            'stability': 15 * size_factor
+            'edge_stability': 10,
+            'parity': 5,
+            'stability': 5
         }
 
         # -------- Corners Heuristic --------
@@ -238,7 +239,7 @@ class ActualStudentAgent(Agent):
             for pos in n2_corners if 0 <= pos[0] < board_size and 0 <= pos[1] < board_size
         )
         score += n2_corner_score
-
+        
         # -------- Adjacent to Corners Heuristic (X-squares and C-squares) --------
         x_squares = [
             (1, 1),

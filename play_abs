@@ -28,7 +28,7 @@ get_agent_name() {
             echo "actual_student"
             ;;
         "student2")
-            echo "student_agent_2"
+            echo "student_agent2"
             ;;
         *)
             echo "invalid"
