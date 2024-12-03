@@ -24,6 +24,9 @@ get_agent_name() {
         "chantal")
             echo "chantal_test_agent"
             ;;
+        "actual_student")
+            echo "actual_student"
+            ;;
         *)
             echo "invalid"
             ;;
@@ -38,6 +41,7 @@ echo "- gpt"
 echo "- student"
 echo "- human"
 echo "- chantal"
+echo "- actual_student"
 echo ""
 
 # Player 1 selection

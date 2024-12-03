@@ -7,3 +7,4 @@ from .minimax import MiniMax
 from .test_agent import TestAgent
 from .student_agent2 import StudentAgent
 from .chantal_test_agent import ChantalTestAgent
+from agents.actual_student import ActualStudentAgent
