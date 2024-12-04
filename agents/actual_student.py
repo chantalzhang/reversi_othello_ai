@@ -5,6 +5,7 @@ import numpy as np
 import random
 import time
 from helpers import random_move, count_capture, execute_move, check_endgame, get_valid_moves
+import psutil 
 
 @register_agent("actual_student")
 class ActualStudentAgent(Agent):
@@ -77,6 +78,11 @@ class ActualStudentAgent(Agent):
                 return None  
         
         print(f"My AI's turn took {time.time() - start_time:.4f} seconds. Best move found at depth {depth - 1}. Breadth searched: {self.max_breadth}")
+
+        # print memory usage
+        process = psutil.Process()
+        mem_info = process.memory_info()
+        print(f"Memory usage: {mem_info.rss / (1024 * 1024):.2f} MB")
 
         return best_move
 
