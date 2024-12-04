@@ -11,13 +11,12 @@ import psutil
 class StudentAgent(Agent):
     """
     Reversi Othello agent that uses minimax and heuristic search in an iterative deepening mannerto make decisions. 
-    Implements alpha-beta pruning and transposition tables to optimize computation time to search deeper in the given time constraint. 
+    Implements alpha-beta pruning to optimize computation time to search deeper in the given time constraint. 
 
     """
     def __init__(self):
         super(StudentAgent, self).__init__()
         self.name = "StudentAgent"
-        self.transposition_table = {}  # For caching board evaluations
         # to track stats: 
         self.breadth = 0 # UNCOMMENT FOR PRINITNG 
         self.max_breadth = 0 # UNCOMMENT FOR PRINTING 
@@ -92,17 +91,13 @@ class StudentAgent(Agent):
         # Check time limit before starting search
         self.check_time_limit(start_time, time_limit)
 
-        # Transposition table lookup for computational efficiency
-        board_key = (tuple(chess_board.flatten()), depth, is_maximizing_player)
-        if board_key in self.transposition_table:
-            return self.transposition_table[board_key]
+
 
         # Check if node is a leaf node (endgame)
         is_endgame, _, _ = check_endgame(chess_board, player, opponent)
         if depth == 0 or is_endgame:
             score = self.evaluate_board(chess_board, player, opponent)
-            # Store in transposition table
-            self.transposition_table[board_key] = (score, None)
+
             return score, None
 
         if is_maximizing_player:
@@ -113,8 +108,7 @@ class StudentAgent(Agent):
                 # Pass move
                 eval_score, _ = self.minimax(chess_board, depth - 1, False, player, opponent,
                                             alpha, beta, start_time, time_limit)
-                # Store in transposition table
-                self.transposition_table[board_key] = (eval_score, None)
+
                 return eval_score, None
             # Move ordering
             valid_moves = self.order_moves(chess_board, valid_moves, player, opponent, True)
@@ -130,8 +124,7 @@ class StudentAgent(Agent):
                 alpha = max(alpha, best_val)
                 if beta <= alpha:
                     break  # Beta cutoff for pruning
-            # Store in transposition table
-            self.transposition_table[board_key] = (best_val, best_move)
+
             return best_val, best_move
         else:
             best_val = float('inf')
@@ -141,8 +134,7 @@ class StudentAgent(Agent):
                 # Pass move
                 eval_score, _ = self.minimax(chess_board, depth - 1, True, player, opponent,
                                             alpha, beta, start_time, time_limit)
-                # Store in transposition table
-                self.transposition_table[board_key] = (eval_score, None)
+
                 return eval_score, None
             # Move ordering
             valid_moves = self.order_moves(chess_board, valid_moves, opponent, player, False)
@@ -158,8 +150,7 @@ class StudentAgent(Agent):
                 beta = min(beta, best_val)
                 if beta <= alpha:
                     break  # Alpha cutoff for pruning
-            # Store in transposition table
-            self.transposition_table[board_key] = (best_val, best_move)
+
             return best_val, best_move
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  EVALUATION FUNCTIONS  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
