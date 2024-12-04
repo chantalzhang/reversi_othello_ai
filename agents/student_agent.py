@@ -176,7 +176,7 @@ class StudentAgent(Agent):
 
     
             weights = {
-                'corner': 1000,
+                'corner': 1000, 
                 'n2_corner': 50,
                 'adjacent_corner': -20,
                 'mobility': 10,
@@ -192,6 +192,7 @@ class StudentAgent(Agent):
             }
 
             # -------- Corners Heuristic --------
+            # corner pieces are the most stable in othello, as they can never be flipped once placed 
             corners = [
                 (0, 0), (0, board_size - 1),
                 (board_size - 1, 0), (board_size - 1, board_size - 1)
@@ -203,6 +204,7 @@ class StudentAgent(Agent):
             score += corner_score
 
             # -------- n-2 Corners Heuristic (Inner Corners) --------
+            # two steps away from the outer corners, these are also strategic tiles 
             n2_corners = [
                 (0, 2), (0, board_size - 3),
                 (2, 0), (board_size - 3, 0),
@@ -216,6 +218,7 @@ class StudentAgent(Agent):
             score += n2_corner_score
             
             # -------- Adjacent to Corners Heuristic (X-squares and C-squares) --------
+            # discourage moves to adjacent corners as they allow the opponent to capture a corner piece easier 
             x_squares = [
                 (1, 1),
                 (1, board_size - 2),
@@ -236,10 +239,12 @@ class StudentAgent(Agent):
             score += adjacent_corner_score
 
             # -------- Edge Stability Heuristic --------
+            # stable pieces along edge that are stable and unflippable 
             edge_stability_score = self.edge_stability(board, color) - self.edge_stability(board, opponent)
             score += edge_stability_score * weights['edge_stability']
 
             # -------- Mobility Heuristic --------
+            # mobility refers to the number of moves a player can make, we want to maximize our mobility and minimize the opponent's 
             player_moves = len(get_valid_moves(board, color))
             opponent_moves = len(get_valid_moves(board, opponent))
             if player_moves + opponent_moves != 0:
@@ -247,10 +252,12 @@ class StudentAgent(Agent):
                 score += mobility_score
 
             # -------- Potential Mobility Heuristic --------
+            # the number of empty squares adjacent to the opponent's pieces, we want to minimize this to maximize our mobility 
             potential_mobility_score = self.calculate_potential_mobility(board, color, opponent)
             score += weights['potential_mobility'] * potential_mobility_score
 
             # -------- Disc Difference Heuristic --------
+            # the difference in the number of discs between the player and opponent
             player_discs = np.count_nonzero(board == color)
             opponent_discs = np.count_nonzero(board == opponent)
             disc_difference = player_discs - opponent_discs
@@ -259,10 +266,12 @@ class StudentAgent(Agent):
             score += disc_difference_score
 
             # -------- Parity Heuristic --------
+            # check if the number of empty squares left is odd or even to favor havint the last move 
             parity_score = self.parity(board) * weights['parity']
             score += parity_score
 
             # -------- Stability Heuristic --------
+            # discs that cannot be flipped by opponent 
             stable_disc_count = self.stable_discs(board, color) - self.stable_discs(board, opponent)
             score += stable_disc_count * weights['stability']
 
@@ -337,7 +346,7 @@ class StudentAgent(Agent):
 
     def stable_discs(self, board, color):
         """
-        Count the number of stable discs for a given color.
+        Count the number of stable (unflippable) discs.
         """
         board_size = board.shape[0]
         stable = np.zeros_like(board, dtype=bool)
@@ -351,7 +360,7 @@ class StudentAgent(Agent):
 
     def mark_stable_discs(self, board, stable, position, color):
         """
-        Recursively mark stable discs from a corner.
+        Mark stable discs from corner.
         """
         x, y = position
         board_size = board.shape[0]
