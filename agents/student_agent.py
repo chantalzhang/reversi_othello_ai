@@ -5,7 +5,7 @@ import numpy as np
 import random
 import time
 from helpers import random_move, count_capture, execute_move, check_endgame, get_valid_moves
-import psutil
+# import psutil uncomment for memory usage
 
 @register_agent("student_agent")
 class StudentAgent(Agent):
@@ -17,9 +17,10 @@ class StudentAgent(Agent):
     def __init__(self):
         super(StudentAgent, self).__init__()
         self.name = "StudentAgent"
+
         # to track stats: 
-        self.breadth = 0 # UNCOMMENT FOR PRINITNG 
-        self.max_breadth = 0 # UNCOMMENT FOR PRINTING 
+        # self.breadth = 0 # UNCOMMENT FOR PRINITNG 
+        # self.max_breadth = 0 # UNCOMMENT FOR PRINTING 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  MAIN FUNCTION  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 
@@ -43,16 +44,14 @@ class StudentAgent(Agent):
                 self.check_time_limit(start_time, max_time)
                 
                 # to print out current breadth of search tree 
-                valid_moves = get_valid_moves(chess_board, player) # UNCOMMENT FOR PRINTING 
-                self.breadth = len(valid_moves) # UNCOMMENT FOR PRINTING 
+                valid_moves = get_valid_moves(chess_board, player) 
+                self.breadth = len(valid_moves) 
                 
                 # Update max_breadth using class variable
-                self.max_breadth = max(self.max_breadth, self.breadth) # UNCOMMENT FOR PRINTING 
+                self.max_breadth = max(self.max_breadth, self.breadth) 
                 
                 # begin minimax search at current depth 
-                eval_score, move = self.minimax(
-                    chess_board, depth, True, player, opponent,
-                    float('-inf'), float('inf'), start_time, max_time)
+                eval_score, move = self.minimax(chess_board, depth, True, player, opponent, float('-inf'), float('inf'), start_time, max_time)
                 
                 # update best move if found
                 if move is not None:
@@ -74,11 +73,13 @@ class StudentAgent(Agent):
             else:
                 return None  
         
-        print(f"My AI's turn took {time.time() - start_time:.4f} seconds. Best move found at depth {depth - 1}. Breadth searched: {self.max_breadth}") # UNCOMMENT FOR PRINTING     
-        process = psutil.Process()
-        mem_info = process.memory_info()
-        # Uncomment the next line to print memory usage
-        print(f"Memory usage: {mem_info.rss / (1024 * 1024):.2f} MB")
+        # print(f"My AI's turn took {time.time() - start_time:.4f} seconds. Best move found at depth {depth - 1}. Breadth searched: {self.max_breadth}") # UNCOMMENT FOR PRINTING 
+
+        # UNCOMMENT BELOW FOR MEMORY USAGE TRACKING   
+        # process = psutil.Process()
+        # mem_info = process.memory_info()
+        # print(f"Memory usage: {mem_info.rss / (1024 * 1024):.2f} MB")
+
         return best_move
 
 
