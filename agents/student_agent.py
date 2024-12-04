@@ -204,7 +204,7 @@ class StudentAgent(Agent):
             score += corner_score
 
             # -------- n-2 Corners Heuristic (Inner Corners) --------
-            # two steps away from the outer corners, these are also strategic tiles 
+            # two steps away from the outer corners horizontally and vertically to discourage moves to tiles adjacent to corners 
             n2_corners = [
                 (0, 2), (0, board_size - 3),
                 (2, 0), (board_size - 3, 0),
