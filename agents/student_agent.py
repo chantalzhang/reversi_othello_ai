@@ -219,19 +219,19 @@ class StudentAgent(Agent):
             
             # -------- Adjacent to Corners Heuristic (X-squares and C-squares) --------
             # discourage moves to adjacent corners as they allow the opponent to capture a corner piece easier 
-            x_squares = [
+            diagonal_adj = [
                 (1, 1),
                 (1, board_size - 2),
                 (board_size - 2, 1),
                 (board_size - 2, board_size - 2)
             ]
-            c_squares = [
+            orthogonal_adj = [
                 (0, 1), (1, 0),
                 (0, board_size - 2), (1, board_size - 1),
                 (board_size - 1, 1), (board_size - 2, 0),
                 (board_size - 2, board_size - 1), (board_size - 1, board_size - 2)
             ]
-            adjacent_positions = x_squares + c_squares
+            adjacent_positions = diagonal_adj + orthogonal_adj
             adjacent_corner_score = sum(
                 weights['adjacent_corner'] if board[pos] == color else -weights['adjacent_corner'] if board[pos] == opponent else 0
                 for pos in adjacent_positions if 0 <= pos[0] < board_size and 0 <= pos[1] < board_size
