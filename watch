@@ -24,7 +24,7 @@ get_agent_name() {
         "chantal")
             echo "chantal_test_agent"
             ;;
-        "actual_student")
+        "actual")
             echo "actual_student"
             ;;
         "student2")
@@ -45,7 +45,7 @@ echo "- student"
 echo "- student2"
 echo "- human"
 echo "- chantal"
-echo "- actual_student"
+echo "- actual"
 echo ""
 
 # Player 1 selection
