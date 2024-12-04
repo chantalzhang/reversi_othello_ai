@@ -80,82 +80,82 @@ class ActualStudentAgent(Agent):
 
         return best_move
 
-    def minimax(self, chess_board, depth, is_maximizing_player, player, opponent, alpha, beta, start_time, time_limit):
+    def minimax(self, chess_board, depth, maximizing_player, player, opponent, alpha, beta, start_time, time_limit):
         """
         Minimax algorithm with alpha-beta pruning and move ordering.
         """
-        # Check time limit before starting search
-        self.check_time_limit(start_time, time_limit)
+        # Time limit check
+        if time.time() - start_time >= time_limit:
+            raise TimeoutError  # Immediate termination
 
-        # Transposition table lookup for computational efficiency
-        board_key = (tuple(chess_board.flatten()), depth, is_maximizing_player)
+        # Transposition table lookup
+        board_key = (tuple(chess_board.flatten()), depth, maximizing_player)
         if board_key in self.transposition_table:
             return self.transposition_table[board_key]
 
-        # Check if node is a leaf node (endgame)
+        # Endgame or depth limit check
         is_endgame, _, _ = check_endgame(chess_board, player, opponent)
-        if is_endgame:
+        if depth == 0 or is_endgame:
             score = self.evaluate_board(chess_board, player, opponent)
             # Store in transposition table
             self.transposition_table[board_key] = (score, None)
             return score, None
 
-        if is_maximizing_player:
-            best_val = float('-inf')
+        if maximizing_player:
+            max_eval = float('-inf')
             best_move = None
             valid_moves = get_valid_moves(chess_board, player)
             if not valid_moves:
                 # Pass move
-                eval_score, _ = self.minimax(chess_board, depth + 1, False, player, opponent,
-                                            alpha, beta, start_time, time_limit)
+                eval_score, _ = self.minimax(chess_board, depth - 1, False, player, opponent,
+                                             alpha, beta, start_time, time_limit)
                 # Store in transposition table
                 self.transposition_table[board_key] = (eval_score, None)
                 return eval_score, None
             # Move ordering
             valid_moves = self.order_moves(chess_board, valid_moves, player, opponent, True)
             for move in valid_moves:
-                self.check_time_limit(start_time, time_limit)  # Check time limit within loop
                 new_board = np.copy(chess_board)
                 execute_move(new_board, move, player)
-                eval_score, _ = self.minimax(new_board, depth + 1, False, player, opponent,
-                                            alpha, beta, start_time, time_limit)
-                if eval_score > best_val:
-                    best_val = eval_score
+                eval_score, _ = self.minimax(new_board, depth - 1, False, player, opponent,
+                                             alpha, beta, start_time, time_limit)
+                if eval_score > max_eval:
+                    max_eval = eval_score
                     best_move = move
-                alpha = max(alpha, best_val)
+                alpha = max(alpha, eval_score)
                 if beta <= alpha:
-                    break  # Beta cutoff for pruning
+                    break  # Beta cutoff
             # Store in transposition table
-            self.transposition_table[board_key] = (best_val, best_move)
-            return best_val, best_move
+            self.transposition_table[board_key] = (max_eval, best_move)
+            return max_eval, best_move
         else:
-            best_val = float('inf')
+            min_eval = float('inf')
             best_move = None
             valid_moves = get_valid_moves(chess_board, opponent)
             if not valid_moves:
                 # Pass move
-                eval_score, _ = self.minimax(chess_board, depth + 1, True, player, opponent,
-                                            alpha, beta, start_time, time_limit)
+                eval_score, _ = self.minimax(chess_board, depth - 1, True, player, opponent,
+                                             alpha, beta, start_time, time_limit)
                 # Store in transposition table
                 self.transposition_table[board_key] = (eval_score, None)
                 return eval_score, None
             # Move ordering
             valid_moves = self.order_moves(chess_board, valid_moves, opponent, player, False)
             for move in valid_moves:
-                self.check_time_limit(start_time, time_limit)  # Check time limit within loop
                 new_board = np.copy(chess_board)
                 execute_move(new_board, move, opponent)
-                eval_score, _ = self.minimax(new_board, depth + 1, True, player, opponent,
-                                            alpha, beta, start_time, time_limit)
-                if eval_score < best_val:
-                    best_val = eval_score
+                eval_score, _ = self.minimax(new_board, depth - 1, True, player, opponent,
+                                             alpha, beta, start_time, time_limit)
+                if eval_score < min_eval:
+                    min_eval = eval_score
                     best_move = move
-                beta = min(beta, best_val)
+                beta = min(beta, eval_score)
                 if beta <= alpha:
-                    break  # Alpha cutoff for pruning
+                    break  # Alpha cutoff
             # Store in transposition table
-            self.transposition_table[board_key] = (best_val, best_move)
-            return best_val, best_move
+            self.transposition_table[board_key] = (min_eval, best_move)
+            return min_eval, best_move
+
 
 
     def order_moves(self, board, moves, player, opponent, maximizing_player):
