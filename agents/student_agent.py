@@ -19,8 +19,8 @@ class StudentAgent(Agent):
         self.name = "StudentAgent"
 
         # to track stats: 
-        # self.breadth = 0 # UNCOMMENT FOR PRINITNG 
-        # self.max_breadth = 0 # UNCOMMENT FOR PRINTING 
+        self.breadth = 0 
+        self.max_breadth = 0 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  MAIN FUNCTION  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 
